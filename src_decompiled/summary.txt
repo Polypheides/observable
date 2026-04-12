@@ -1,9 +1,0 @@
-Summary for c:\Users\Film\Desktop\Polypheides\observable\observable-26.1-5.4.3.jar
-Decompiled with CFR 0.152
-
-
-observable.server.ObservableCommands
-----------------------------
-
-register$lambda$0(com.mojang.brigadier.CommandDispatcher net.minecraft.commands.CommandBuildContext net.minecraft.commands.Commands$CommandSelection )
-  Unable to fully structure code

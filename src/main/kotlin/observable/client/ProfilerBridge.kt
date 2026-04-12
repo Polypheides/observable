@@ -111,7 +111,9 @@ object ProfilerBridge {
 
     @JvmStatic
     fun drawWorldPass(stack: Matrix4fStack, bufferSource: MultiBufferSource, camPos: Vec3, entries: List<BlockEntry>, labels: List<LabelEntry>, collector: SubmitNodeCollector, cameraState: CameraRenderState) {
-        // Draw boxes
+        val mc = Minecraft.getInstance()
+        
+        // 1. Draw solid boxes (standard translucent pass)
         if (entries.isNotEmpty()) {
             val translucentBuffer = bufferSource.getBuffer(getTranslucent())
             for (entry in entries) {
@@ -123,36 +125,41 @@ object ProfilerBridge {
             }
         }
 
-        // Draw lines (wireframes)
-        val lineBuffer = bufferSource.getBuffer(getLines())
+        // 2. Draw glowing wireframes
+        val lineBuffer = bufferSource.getBuffer(observable.client.ObservableRenderTypes.getGlowLines())
+        
         for (entry in entries) {
             val x = entry.pos.x.toDouble() - camPos.x
             val y = entry.pos.y.toDouble() - camPos.y
             val z = entry.pos.z.toDouble() - camPos.z
-            val x0 = x.toFloat()
-            val y0 = y.toFloat()
-            val z0 = z.toFloat()
-            val x1 = (x + 1.0).toFloat()
-            val y1 = (y + 1.0).toFloat()
-            val z1 = (z + 1.0).toFloat()
+            
+            // Inflate wireframe slightly more than filled box to ensure it caps it
+            val i = 0.02f
+            val x0 = x.toFloat() - i; val y0 = y.toFloat() - i; val z0 = z.toFloat() - i
+            val x1 = (x + 1.0).toFloat() + i; val y1 = (y + 1.0).toFloat() + i; val z1 = (z + 1.0).toFloat() + i
+
             val r = (entry.color shr 16) and 0xFF
             val g = (entry.color shr 8) and 0xFF
             val b = entry.color and 0xFF
             val a = 255
+            
+            // Edges - reasonable thickness for a clean look
             l(lineBuffer, stack, x0, y0, z0, x1, y0, z0, r, g, b, a)
             l(lineBuffer, stack, x1, y0, z0, x1, y0, z1, r, g, b, a)
             l(lineBuffer, stack, x1, y0, z1, x0, y0, z1, r, g, b, a)
             l(lineBuffer, stack, x0, y0, z1, x0, y0, z0, r, g, b, a)
+
             l(lineBuffer, stack, x0, y1, z0, x1, y1, z0, r, g, b, a)
             l(lineBuffer, stack, x1, y1, z0, x1, y1, z1, r, g, b, a)
             l(lineBuffer, stack, x1, y1, z1, x0, y1, z1, r, g, b, a)
             l(lineBuffer, stack, x0, y1, z1, x0, y1, z0, r, g, b, a)
+
             l(lineBuffer, stack, x0, y0, z0, x0, y1, z0, r, g, b, a)
             l(lineBuffer, stack, x1, y0, z0, x1, y1, z0, r, g, b, a)
             l(lineBuffer, stack, x1, y0, z1, x1, y1, z1, r, g, b, a)
             l(lineBuffer, stack, x0, y0, z1, x0, y1, z1, r, g, b, a)
         }
-
+        
         // Draw labels
         val font = Minecraft.getInstance().font
         for (label in labels) {
@@ -214,8 +221,8 @@ object ProfilerBridge {
     }
 
     private fun l(c: VertexConsumer, m: Matrix4fc, x0: Float, y0: Float, z0: Float, x1: Float, y1: Float, z1: Float, r: Int, g: Int, b: Int, a: Int) {
-        c.addVertex(m, x0, y0, z0).setColor(r, g, b, a).setNormal(0.0f, 1.0f, 0.0f).setLineWidth(1.0f)
-        c.addVertex(m, x1, y1, z1).setColor(r, g, b, a).setNormal(0.0f, 1.0f, 0.0f).setLineWidth(1.0f)
+        c.addVertex(m, x0, y0, z0).setColor(r, g, b, a).setNormal(0.0f, 1.0f, 0.0f).setLineWidth(4.5f)
+        c.addVertex(m, x1, y1, z1).setColor(r, g, b, a).setNormal(0.0f, 1.0f, 0.0f).setLineWidth(4.5f)
     }
 
     private fun v(c: VertexConsumer, m: Matrix4fc, x: Float, y: Float, z: Float, r: Int, g: Int, b: Int, a: Int) {

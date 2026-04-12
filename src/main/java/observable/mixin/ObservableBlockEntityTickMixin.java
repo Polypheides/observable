@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
 @Mixin(Level.class)
-public abstract class ObservableTileMixin {
+public abstract class ObservableBlockEntityTickMixin {
     @Redirect(method = "tickBlockEntities", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/entity/TickingBlockEntity;tick()V"))
     public final void Observable$redirectTick(TickingBlockEntity ticker) {
         if (!observable.Props.notProcessing.get() && !((Level) (Object) this).isClientSide()) {

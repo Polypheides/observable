@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(Minecraft.class)
-public class ObservableAppMixin {
+public class ObservableClientMixin {
     @Inject(method = "tick", at = @At("HEAD"))
     private void observable$onTick(CallbackInfo ci) {
         if (observable.Observable.KEY_OPEN_SETTINGS.consumeClick()) {

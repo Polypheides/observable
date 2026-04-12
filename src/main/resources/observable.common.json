@@ -4,16 +4,15 @@
   "package": "observable.mixin",
   "compatibilityLevel": "JAVA_25",
   "mixins": [
-    "ObservableEntityMixin",
-    "ObservableTickMixin",
-    "ObservableTileMixin"
+    "ObservableEntityTickMixin",
+    "ObservableBlockFluidTickMixin",
+    "ObservableBlockEntityTickMixin"
   ],
   "client": [
-    "ObservableAppMixin",
-    "ObservableCameraMixin",
+    "ObservableClientMixin",
     "ObservableHudMixin",
-    "ObservableRenderMixin",
-    "ObservableLevelRendererMixin"
+    "ObservableLevelRenderMixin",
+    "ObservableShaderPipelineMixin"
   ],
   "server": [],
   "injectors": {

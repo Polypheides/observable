@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import java.util.function.Consumer;
 
 @Mixin(EntityTickList.class)
-public abstract class ObservableEntityMixin {
+public abstract class ObservableEntityTickMixin {
     @Redirect(method = "forEach", at = @At(value = "INVOKE", target = "Ljava/util/function/Consumer;accept(Ljava/lang/Object;)V"))
     private void Observable$onTickEntity(Consumer<Entity> consumer, Object entity) {
         if (!observable.Props.notProcessing.get() && entity instanceof Entity && !((Entity) entity).level().isClientSide()) {

@@ -18,7 +18,16 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(LevelRenderer.class)
-public abstract class ObservableRenderMixin {
+public abstract class ObservableLevelRenderMixin {
+    @org.spongepowered.asm.mixin.gen.Accessor("submitNodeStorage")
+    public abstract net.minecraft.client.renderer.SubmitNodeStorage getSubmitNodeStorage();
+
+    @org.spongepowered.asm.mixin.gen.Accessor("levelRenderState")
+    public abstract net.minecraft.client.renderer.state.level.LevelRenderState getLevelRenderState();
+
+    @org.spongepowered.asm.mixin.gen.Accessor("targets")
+    public abstract net.minecraft.client.renderer.LevelTargetBundle getTargets();
+
     @Inject(
         method = "renderLevel",
         at = @At(
@@ -44,22 +53,23 @@ public abstract class ObservableRenderMixin {
 
         com.mojang.blaze3d.framegraph.FramePass pass = frame.addPass("observable_render_pass");
         
-        var targets = ((ObservableLevelRendererMixin) this).getTargets();
+        var targets = this.getTargets();
         targets.main = pass.readsAndWrites(targets.main);
 
         pass.executes(() -> {
             // Fix: Use Identity stack. 26.1 shaders handle camera rotation via modelViewMatrix uniform.
-            // Using the modelViewMatrix here causes "double rotation" artifacts.
             org.joml.Matrix4fStack capturedStack = new org.joml.Matrix4fStack(16);
             capturedStack.identity();
 
-            var collector = ((ObservableLevelRendererMixin) this).getSubmitNodeStorage();
+            var collector = this.getSubmitNodeStorage();
             
+            // Draw into buffers (this doesn't submit to GPU yet)
             ProfilerBridge.render(cameraState.projectionMatrix, modelViewMatrix, cameraState.pos, capturedStack, deltaTracker, collector, cameraState);
             
-            var bufferSource = net.minecraft.client.Minecraft.getInstance().renderBuffers().bufferSource();
-            if (bufferSource instanceof net.minecraft.client.renderer.MultiBufferSource.BufferSource) {
-                ((net.minecraft.client.renderer.MultiBufferSource.BufferSource) bufferSource).endBatch();
+            // Flush Main Buffer (TICK cubes & Wireframes)
+            var mainBufferSource = net.minecraft.client.Minecraft.getInstance().renderBuffers().bufferSource();
+            if (mainBufferSource instanceof net.minecraft.client.renderer.MultiBufferSource.BufferSource) {
+                ((net.minecraft.client.renderer.MultiBufferSource.BufferSource) mainBufferSource).endBatch();
             }
         });
     }

@@ -48,15 +48,16 @@ public abstract class ObservableRenderMixin {
         targets.main = pass.readsAndWrites(targets.main);
 
         pass.executes(() -> {
-            var bufferSource = ((ObservableLevelRendererAccessor) this).getRenderBuffers().bufferSource();
-            
-            org.joml.Matrix4fStack poseStack = new org.joml.Matrix4fStack(16);
-            poseStack.identity();
+            // Fix: Use Identity stack. 26.1 shaders handle camera rotation via modelViewMatrix uniform.
+            // Using the modelViewMatrix here causes "double rotation" artifacts.
+            org.joml.Matrix4fStack capturedStack = new org.joml.Matrix4fStack(16);
+            capturedStack.identity();
 
-            // Use cameraState.pos for translation
             var collector = ((ObservableLevelRendererAccessor) this).getSubmitNodeStorage();
-            ProfilerBridge.render(cameraState.projectionMatrix, modelViewMatrix, cameraState.pos, poseStack, deltaTracker, collector, cameraState);
             
+            ProfilerBridge.render(cameraState.projectionMatrix, modelViewMatrix, cameraState.pos, capturedStack, deltaTracker, collector, cameraState);
+            
+            var bufferSource = net.minecraft.client.Minecraft.getInstance().renderBuffers().bufferSource();
             if (bufferSource instanceof net.minecraft.client.renderer.MultiBufferSource.BufferSource) {
                 ((net.minecraft.client.renderer.MultiBufferSource.BufferSource) bufferSource).endBatch();
             }

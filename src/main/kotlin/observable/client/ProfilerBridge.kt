@@ -95,36 +95,50 @@ object ProfilerBridge {
 
     @JvmStatic
     fun render(projection: Matrix4fc?, modelView: Matrix4fc, cameraPos: Vec3, stack: Matrix4fStack, delta: DeltaTracker, collector: SubmitNodeCollector, cameraState: CameraRenderState) {
-        worldRenderer?.let {
-            val bufferSource = Minecraft.getInstance().renderBuffers().bufferSource()
-            it.render(stack, bufferSource, cameraPos, modelView, delta, collector, cameraState)
+        if (renderDepth > 0) {
+            return
+        }
+        renderDepth++
+        try {
+            worldRenderer?.let {
+                val bufferSource = Minecraft.getInstance().renderBuffers().bufferSource()
+                it.render(stack, bufferSource, cameraPos, modelView, delta, collector, cameraState)
+            }
+        } finally {
+            renderDepth--
         }
     }
 
     @JvmStatic
     fun drawWorldPass(stack: Matrix4fStack, bufferSource: MultiBufferSource, camPos: Vec3, entries: List<BlockEntry>, labels: List<LabelEntry>, collector: SubmitNodeCollector, cameraState: CameraRenderState) {
-        // Draw boxes using custom geometry submission to ensure correct translucent pass
+        // Draw boxes
         if (entries.isNotEmpty()) {
-            val poseStack = PoseStack() // Use a fresh PoseStack for submission
-            collector.submitCustomGeometry(poseStack, getTranslucent()) { pose, buffer ->
-                for (entry in entries) {
-                    val x = entry.pos.x.toDouble() - camPos.x
-                    val y = entry.pos.y.toDouble() - camPos.y
-                    val z = entry.pos.z.toDouble() - camPos.z
-                    f(buffer, pose.pose(), x.toFloat(), y.toFloat(), z.toFloat(), (x + 1.0).toFloat(), (y + 1.0).toFloat(), (z + 1.0).toFloat(),
-                            (entry.color shr 16) and 0xFF, (entry.color shr 8) and 0xFF, entry.color and 0xFF, entry.alpha)
-                }
+            val translucentBuffer = bufferSource.getBuffer(getTranslucent())
+            for (entry in entries) {
+                val x = entry.pos.x.toDouble() - camPos.x
+                val y = entry.pos.y.toDouble() - camPos.y
+                val z = entry.pos.z.toDouble() - camPos.z
+                f(translucentBuffer, stack, x.toFloat(), y.toFloat(), z.toFloat(), (x + 1.0).toFloat(), (y + 1.0).toFloat(), (z + 1.0).toFloat(),
+                        (entry.color shr 16) and 0xFF, (entry.color shr 8) and 0xFF, entry.color and 0xFF, entry.alpha)
             }
         }
 
         // Draw lines (wireframes)
         val lineBuffer = bufferSource.getBuffer(getLines())
         for (entry in entries) {
-            val x0 = (entry.pos.x.toDouble() - camPos.x).toFloat()
-            val y0 = (entry.pos.y.toDouble() - camPos.y).toFloat()
-            val z0 = (entry.pos.z.toDouble() - camPos.z).toFloat()
-            val x1 = x0 + 1.0f; val y1 = y0 + 1.0f; val z1 = z0 + 1.0f
-            val r = (entry.color shr 16) and 0xFF; val g = (entry.color shr 8) and 0xFF; val b = entry.color and 0xFF; val a = entry.alpha
+            val x = entry.pos.x.toDouble() - camPos.x
+            val y = entry.pos.y.toDouble() - camPos.y
+            val z = entry.pos.z.toDouble() - camPos.z
+            val x0 = x.toFloat()
+            val y0 = y.toFloat()
+            val z0 = z.toFloat()
+            val x1 = (x + 1.0).toFloat()
+            val y1 = (y + 1.0).toFloat()
+            val z1 = (z + 1.0).toFloat()
+            val r = (entry.color shr 16) and 0xFF
+            val g = (entry.color shr 8) and 0xFF
+            val b = entry.color and 0xFF
+            val a = 255
             l(lineBuffer, stack, x0, y0, z0, x1, y0, z0, r, g, b, a)
             l(lineBuffer, stack, x1, y0, z0, x1, y0, z1, r, g, b, a)
             l(lineBuffer, stack, x1, y0, z1, x0, y0, z1, r, g, b, a)
@@ -141,24 +155,18 @@ object ProfilerBridge {
 
         // Draw labels
         val font = Minecraft.getInstance().font
-        
-        // DEBUG: Hardcoded label
-        val finalLabels = labels.toMutableList()
-        finalLabels.add(ProfilerBridge.LabelEntry(Vec3(0.0, 100.0, 0.0), "DEBUG WORLD", 0xFFFFFF))
-        
-        for (label in finalLabels) {
+        for (label in labels) {
             val distSq = label.pos.distanceToSqr(camPos)
             if (distSq > ProfilerBridge.MAX_DISTANCE_SQ) continue
 
-            stack.pushMatrix()
-            stack.translate(
+            val labelMatrix = Matrix4f()
+            labelMatrix.translate(
                 (label.pos.x - camPos.x).toFloat(), 
-                (label.pos.y - camPos.y + 0.5f).toFloat(), 
+                (label.pos.y - camPos.y + 0.5).toFloat(), 
                 (label.pos.z - camPos.z).toFloat()
             )
-            
-            stack.rotate(cameraState.orientation)
-            stack.scale(0.05f, -0.05f, 0.05f)
+            labelMatrix.rotate(cameraState.orientation)
+            labelMatrix.scale(0.025f, -0.025f, 0.025f)
             
             val text = label.text
             val width = font.width(text)
@@ -166,16 +174,15 @@ object ProfilerBridge {
             font.drawInBatch(
                 text,
                 -width / 2.0f,
-                -4.0f,
-                0xFFFFFFFF.toInt(),
+                0.0f,
+                label.color or (0xFF shl 24),
                 false,
-                stack,
+                labelMatrix,
                 bufferSource,
                 Font.DisplayMode.SEE_THROUGH,
                 0, 
-                15728880
+                0xF000F0 
             )
-            stack.popMatrix()
         }
     }
 

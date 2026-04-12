@@ -16,7 +16,4 @@ public interface ObservableLevelRendererAccessor {
 
     @Accessor("targets")
     net.minecraft.client.renderer.LevelTargetBundle getTargets();
-
-    @Accessor("renderBuffers")
-    net.minecraft.client.renderer.RenderBuffers getRenderBuffers();
 }

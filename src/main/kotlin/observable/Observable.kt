@@ -77,6 +77,22 @@ object Observable : ModInitializer {
             RESULTS = t.data
             PROFILE_SCREEN.action = ProfileScreen.Action.NewProfile(30)
             observable.client.Overlay.loadSync()
+
+            val mc = net.minecraft.client.Minecraft.getInstance()
+            
+            if (t.link != null) {
+                // 1. Post online link
+                val linkComp = net.minecraft.network.chat.Component.literal(t.link)
+                    .withStyle { it.withColor(net.minecraft.ChatFormatting.AQUA).withUnderlined(true).withClickEvent(observable.util.ClickEventUtils.createOpenUrl(t.link)) }
+                
+                val msg = net.minecraft.network.chat.Component.translatable("text.observable.profile_uploaded", linkComp)
+                mc.player?.sendSystemMessage(msg)
+            } else {
+                // 2. Fallback: export locally and post local link
+                val localLink = observable.client.ProfileExporter.export(t.data)
+                val msg = net.minecraft.network.chat.Component.translatable("text.observable.profile_saved", localLink)
+                mc.player?.sendSystemMessage(msg)
+            }
         }
 
         CHANNEL.register { t: S2CPacket.Availability, _ ->

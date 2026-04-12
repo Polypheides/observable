@@ -13,7 +13,7 @@
     "ObservableCameraMixin",
     "ObservableHudMixin",
     "ObservableRenderMixin",
-    "ObservableLevelRendererAccessor"
+    "ObservableLevelRendererMixin"
   ],
   "server": [],
   "injectors": {

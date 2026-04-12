@@ -44,7 +44,7 @@ public abstract class ObservableRenderMixin {
 
         com.mojang.blaze3d.framegraph.FramePass pass = frame.addPass("observable_render_pass");
         
-        var targets = ((ObservableLevelRendererAccessor) this).getTargets();
+        var targets = ((ObservableLevelRendererMixin) this).getTargets();
         targets.main = pass.readsAndWrites(targets.main);
 
         pass.executes(() -> {
@@ -53,7 +53,7 @@ public abstract class ObservableRenderMixin {
             org.joml.Matrix4fStack capturedStack = new org.joml.Matrix4fStack(16);
             capturedStack.identity();
 
-            var collector = ((ObservableLevelRendererAccessor) this).getSubmitNodeStorage();
+            var collector = ((ObservableLevelRendererMixin) this).getSubmitNodeStorage();
             
             ProfilerBridge.render(cameraState.projectionMatrix, modelViewMatrix, cameraState.pos, capturedStack, deltaTracker, collector, cameraState);
             

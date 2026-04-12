@@ -1,0 +1,22 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "observable.mixin",
+  "compatibilityLevel": "JAVA_25",
+  "mixins": [
+    "ObservableEntityMixin",
+    "ObservableTickMixin",
+    "ObservableTileMixin"
+  ],
+  "client": [
+    "ObservableAppMixin",
+    "ObservableCameraMixin",
+    "ObservableHudMixin",
+    "ObservableRenderMixin",
+    "ObservableLevelRendererAccessor"
+  ],
+  "server": [],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

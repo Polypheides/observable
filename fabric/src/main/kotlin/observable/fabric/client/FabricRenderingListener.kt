@@ -1,9 +1,10 @@
-package observable.client
+package observable.fabric.client
 
 import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderContext
 import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents
 import net.minecraft.client.Minecraft
 import org.joml.Matrix4f
+import observable.client.ProfilerBridge
 
 object FabricRenderingListener {
     fun register() {

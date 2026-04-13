@@ -6,12 +6,9 @@
   "mixins": [
     "ObservableEntityTickMixin",
     "ObservableBlockFluidTickMixin",
-    "ObservableBlockEntityTickMixin",
-    "RenderTypeAccessor"
+    "ObservableBlockEntityTickMixin"
   ],
-  "client": [
-    "ObservableShaderPipelineMixin"
-  ],
+  "client": [],
   "server": [],
   "injectors": {
     "defaultRequire": 1

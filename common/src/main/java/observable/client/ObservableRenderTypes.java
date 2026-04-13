@@ -1,7 +1,7 @@
 package observable.client;
 
-import observable.mixin.ObservableShaderPipelineMixin;
-import observable.mixin.RenderTypeAccessor;
+import observable.mixin.accessor.ObservableRenderPipelinesAccessor;
+import observable.mixin.accessor.ObservableRenderTypeAccessor;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.rendertype.RenderSetup;
 import net.minecraft.client.renderer.rendertype.OutputTarget;
@@ -13,10 +13,10 @@ public class ObservableRenderTypes {
 
     public static RenderType getGlowLines() {
         if (GLOW_LINES == null) {
-            GLOW_LINES = RenderTypeAccessor.callCreate(
+            GLOW_LINES = ObservableRenderTypeAccessor.callCreate(
                 "observable_glow_lines",
                 RenderSetup.builder(
-                    com.mojang.blaze3d.pipeline.RenderPipeline.builder(ObservableShaderPipelineMixin.getLinesSnippet())
+                    com.mojang.blaze3d.pipeline.RenderPipeline.builder(ObservableRenderPipelinesAccessor.getLinesSnippet())
                 .withDepthStencilState(Optional.empty()) // THE X-RAY PART! (Disables depth test/write)
                 .withColorTargetState(new com.mojang.blaze3d.pipeline.ColorTargetState(
                     Optional.of(com.mojang.blaze3d.pipeline.BlendFunction.TRANSLUCENT),

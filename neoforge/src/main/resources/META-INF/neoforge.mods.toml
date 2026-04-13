@@ -17,4 +17,7 @@ description="Real-time profiling of entities and block entities."
     side="BOTH"
 
 [[mixins]]
-config="observable.common.json"
+config="observable.common.mixin.json"
+
+[[mixins]]
+config="observable.common.accessors.json"

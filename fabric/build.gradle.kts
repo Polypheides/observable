@@ -11,8 +11,11 @@ dependencies {
     implementation("net.fabricmc:fabric-language-kotlin:1.13.10+kotlin.2.3.20")
 
     implementation(project(":common"))
+}
 
-    include(project(":common"))
+tasks.jar {
+    from(project(":common").sourceSets.main.get().output)
+    from(project(":common").sourceSets.main.get().resources)
 }
 
 tasks {
@@ -35,5 +38,5 @@ tasks {
 tasks.register<Copy>("copyToFabric") {
     dependsOn("jar")
     from(tasks.jar.flatMap { it.archiveFile })
-    into("D:/Program Files (x86)/PrismLauncher-Windows-MSVC-Portable-8.2/instances\26.1.2/.minecraft/mods")
+    into("D:/Program Files (x86)/PrismLauncher-Windows-MSVC-Portable-8.2/instances/26.1.2/.minecraft/mods")
 }

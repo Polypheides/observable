@@ -14,9 +14,12 @@
   "environment": "*",
   "entrypoints": {
     "main": ["observable.fabric.ObservableFabric"],
-    "client": ["observable.fabric.Client"]
+    "client": ["observable.fabric.ObservableFabricClient"]
   },
-  "mixins": ["observable.common.json"],
+  "mixins": [
+    "observable.common.mixin.json",
+    "observable.common.accessors.json"
+  ],
   "depends": {
     "fabricloader": ">=0.19.1",
     "fabric-api": ">=0.145.4+26.1.2",

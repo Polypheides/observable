@@ -17,9 +17,10 @@ classes/
 .vscode
 .settings
 *.launch
-.bak
+*.bak
 
 .architectury-transformer/
+.gradle-cache/
 
 src_decompiled/
 src/main/resources/assets/observable/lang/en_us.json

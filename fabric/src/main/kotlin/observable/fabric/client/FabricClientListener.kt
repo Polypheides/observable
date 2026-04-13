@@ -1,10 +1,11 @@
-package observable.client
+package observable.fabric.client
 
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents
 import net.minecraft.client.Minecraft
 import net.minecraft.network.chat.Component
 import observable.Observable
+import observable.client.ProfilerBridge
 
 object FabricClientListener {
     fun register() {

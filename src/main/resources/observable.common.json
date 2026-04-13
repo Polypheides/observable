@@ -9,9 +9,6 @@
     "ObservableBlockEntityTickMixin"
   ],
   "client": [
-    "ObservableClientMixin",
-    "ObservableHudMixin",
-    "ObservableLevelRenderMixin",
     "ObservableShaderPipelineMixin"
   ],
   "server": [],

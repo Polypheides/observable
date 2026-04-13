@@ -84,5 +84,5 @@ publishing {
 tasks.register<Copy>("copyToPrism") {
     dependsOn("jar")
     from(tasks.jar.flatMap { it.archiveFile })
-    into("D:/Program Files (x86)/PrismLauncher-Windows-MSVC-Portable-8.2/instances/Latest/.minecraft/mods")
+    into("D:/Program Files (x86)/PrismLauncher-Windows-MSVC-Portable-8.2/instances/26.1.2/.minecraft/mods")
 }

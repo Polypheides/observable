@@ -6,7 +6,8 @@
   "mixins": [
     "ObservableEntityTickMixin",
     "ObservableBlockFluidTickMixin",
-    "ObservableBlockEntityTickMixin"
+    "ObservableBlockEntityTickMixin",
+    "RenderTypeAccessor"
   ],
   "client": [
     "ObservableShaderPipelineMixin"

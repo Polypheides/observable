@@ -12,5 +12,5 @@ pluginManagement {
 rootProject.name = "observable"
 
 include("common")
-// include("fabric")
+include("fabric")
 include("neoforge")

@@ -5,6 +5,9 @@ plugins {
     id("org.jetbrains.kotlin.plugin.serialization") version "2.3.20" apply false
     java
 }
+tasks.jar {
+    enabled = false
+}
 
 subprojects {
     apply(plugin = "java")
@@ -35,6 +38,10 @@ subprojects {
     afterEvaluate {
         tasks.withType<org.gradle.api.tasks.bundling.Jar>().configureEach {
             duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+            // Only move platform jars to the root libs folder
+            if (project.name != "common") {
+                destinationDirectory.set(rootProject.layout.buildDirectory.dir("libs"))
+            }
         }
     }
 }

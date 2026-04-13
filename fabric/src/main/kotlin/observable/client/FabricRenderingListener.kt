@@ -3,7 +3,7 @@ package observable.client
 import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderContext
 import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents
 import net.minecraft.client.Minecraft
-import org.joml.Matrix4fStack
+import org.joml.Matrix4f
 
 object FabricRenderingListener {
     fun register() {
@@ -18,7 +18,7 @@ object FabricRenderingListener {
         val cameraState = context.levelState().cameraRenderState
         
         // Use Identity stack as 26.1 handles rotation in shaders via modelViewMatrix
-        val capturedStack = Matrix4fStack(16)
+        val capturedStack = org.joml.Matrix4f()
         capturedStack.identity()
         
         // Fabric API's COLLECT_SUBMITS is called at a point where the modelViewMatrix 

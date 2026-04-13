@@ -4,8 +4,6 @@ import observable.mixin.accessor.ObservableRenderPipelinesAccessor;
 import observable.mixin.accessor.ObservableRenderTypeAccessor;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.rendertype.RenderSetup;
-import net.minecraft.client.renderer.rendertype.OutputTarget;
-import com.mojang.blaze3d.pipeline.RenderPipeline;
 import java.util.Optional;
 
 public class ObservableRenderTypes {

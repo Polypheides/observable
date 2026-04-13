@@ -6,8 +6,10 @@ import net.neoforged.fml.ModList
 import net.neoforged.fml.common.Mod
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent
+import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent
 import net.neoforged.neoforge.common.NeoForge
+import observable.client.ProfilerBridge
 import net.neoforged.neoforge.event.RegisterCommandsEvent
 import net.neoforged.neoforge.event.server.ServerStartedEvent
 import net.neoforged.neoforge.event.server.ServerStoppingEvent
@@ -49,6 +51,7 @@ class ObservableNeo(bus: IEventBus) {
         NeoForge.EVENT_BUS.addListener(::onServerStarted)
         NeoForge.EVENT_BUS.addListener(::onServerStopping)
         NeoForge.EVENT_BUS.addListener(::onRegisterCommands)
+        NeoForge.EVENT_BUS.addListener(::onLoggingOut)
         bus.addListener(::onRegisterPayloads)
 
         // Force channel creation to register the network listener
@@ -85,5 +88,9 @@ class ObservableNeo(bus: IEventBus) {
 
     private fun onRegisterPayloads(event: RegisterPayloadHandlersEvent) {
         (Observable.CHANNEL as? NeoChannel)?.onRegisterPayloads(event)
+    }
+
+    private fun onLoggingOut(event: ClientPlayerNetworkEvent.LoggingOut) {
+        ProfilerBridge.clear()
     }
 }

@@ -38,10 +38,17 @@ object Observable {
     var SERVER_INSTANCE: MinecraftServer? = null
     var RESULTS: ProfilingData? = null
     val PROFILE_SCREEN by lazy { ProfileScreen() }
-    var isOverlayEnabled = true
+    
+    var isOverlayEnabled: Boolean
+        get() = observable.client.ClientConfig.data.isOverlayEnabled
+        set(v) {
+            observable.client.ClientConfig.data.isOverlayEnabled = v
+            observable.client.ClientConfig.save()
+        }
 
     @JvmField val KEY_OPEN_SETTINGS = net.minecraft.client.KeyMapping("key.observable.settings", 85, observable.client.ProfilerBridge.CATEGORY)
     @JvmField val KEY_TOGGLE_OVERLAY = net.minecraft.client.KeyMapping("key.observable.overlay", 82, observable.client.ProfilerBridge.CATEGORY)
+    @JvmField val KEY_CYCLE_RENDER_MODE = net.minecraft.client.KeyMapping("key.observable.cycle_render_mode", 91, observable.client.ProfilerBridge.CATEGORY) // 91 is '['
 
     fun clearResults() {
         RESULTS = null
@@ -53,6 +60,7 @@ object Observable {
 
     fun clientInit() {
         LOGGER.info("Starting Observable Client-side initialization...")
+        observable.client.ClientConfig.load()
         observable.client.Overlay.init()
         observable.client.ProfilerBridge.setBridge(observable.client.Overlay)
         observable.client.ProfilerBridge.setWorldRenderer(observable.client.Overlay)
@@ -72,7 +80,7 @@ object Observable {
 
         CHANNEL.register { t: S2CPacket.ProfilingResult, _ ->
             RESULTS = t.data
-            PROFILE_SCREEN.action = ProfileScreen.Action.NewProfile(30)
+            PROFILE_SCREEN.action = ProfileScreen.Action.NewProfile(observable.client.ClientConfig.data.profileDuration)
             observable.client.Overlay.loadSync()
 
             val mc = net.minecraft.client.Minecraft.getInstance()
@@ -94,7 +102,7 @@ object Observable {
 
         CHANNEL.register { t: S2CPacket.Availability, _ ->
             PROFILE_SCREEN.action = when (t) {
-                S2CPacket.Availability.Available -> ProfileScreen.Action.NewProfile(30)
+                S2CPacket.Availability.Available -> ProfileScreen.Action.NewProfile(observable.client.ClientConfig.data.profileDuration)
                 S2CPacket.Availability.NoPermissions -> ProfileScreen.Action.NO_PERMISSIONS
             }
         }

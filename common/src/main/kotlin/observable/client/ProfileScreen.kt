@@ -126,9 +126,6 @@ class ProfileScreen : Screen(Component.translatable("screen.observable.profile")
                 }
             )
 
-        val longWidth = settingsBtn.x + settingsBtn.width - samplerBtn.x
-        val smallWidth = longWidth / 3 - 2
-
         val overlayBtn =
             addRenderableWidget(
                 BetterCheckbox(
@@ -146,16 +143,52 @@ class ProfileScreen : Screen(Component.translatable("screen.observable.profile")
                 }
             )
 
+        // Exclusive Render Mode Toggles (Stacked Vertically for better spacing)
+        val cubesBtn = addRenderableWidget(
+            BetterCheckbox(
+                overlayBtn.x,
+                overlayBtn.y + overlayBtn.height + 4,
+                overlayBtn.width,
+                20,
+                Component.translatable("text.observable.render_mode.cubes"),
+                ClientSettings.renderMode == RenderMode.CUBES
+            ) {
+                if (it) {
+                    ClientSettings.renderMode = RenderMode.CUBES
+                    rebuildWidgets()
+                }
+            }
+        )
+
+        val wireframeBtn = addRenderableWidget(
+            BetterCheckbox(
+                cubesBtn.x,
+                cubesBtn.y + cubesBtn.height + 4,
+                cubesBtn.width,
+                20,
+                Component.translatable("text.observable.render_mode.wireframe"),
+                ClientSettings.renderMode == RenderMode.WIREFRAME
+            ) {
+                if (it) {
+                    ClientSettings.renderMode = RenderMode.WIREFRAME
+                    rebuildWidgets()
+                }
+            }
+        )
+
+        val modeBottomY = wireframeBtn.y + wireframeBtn.height + 4
         val learnBtn =
             button(
                 startBtn.x,
-                overlayBtn.y + overlayBtn.height + 8,
-                smallWidth,
+                modeBottomY,
+                (settingsBtn.x + settingsBtn.width - samplerBtn.x) / 3 - 2,
                 20,
                 Component.translatable("text.observable.docs")
             ) {
                 openLink("https://github.com/tasgon/observable/wiki")
             }
+        
+        val smallWidth = learnBtn.width
         val helpBtn =
             button(
                 learnBtn.x + learnBtn.width + 4,
@@ -197,6 +230,11 @@ class ProfileScreen : Screen(Component.translatable("screen.observable.profile")
         (action as? Action.NewProfile)?.let {
             it.duration += (scrollY.roundToInt() * 5)
             it.duration = it.duration.coerceIn(5, 60)
+            
+            // Persist the duration
+            ClientConfig.data.profileDuration = it.duration
+            ClientConfig.save()
+            
             return true
         }
 

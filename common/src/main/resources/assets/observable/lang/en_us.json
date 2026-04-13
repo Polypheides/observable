@@ -35,5 +35,9 @@
   "text.observable.minRate": "Minimum rate to visualize (μs/t):",
   "text.observable.normalize": "Normalize results:",
   "text.observable.maxEntityCount": "Max # of entities:",
-  "text.observable.cmd": "Observable is a server-side entity profiler that can help you figure out what's lagging your server. To learn more, go to %s."
+  "text.observable.cmd": "Observable is a server-side entity profiler that can help you figure out what's lagging your server. To learn more, go to %s.",
+  "key.observable.cycle_render_mode": "Cycle Render Mode",
+  "text.observable.render_mode": "Render Mode",
+  "text.observable.render_mode.cubes": "Cubes",
+  "text.observable.render_mode.wireframe": "Wireframe"
 }

@@ -34,5 +34,9 @@
   "text.observable.maxEntityCount": "Максимальное кол-во сущностей: ",
   "text.observable.status.new": "Длительность: %s секунд (скролл для смены)",
   "text.observable.status.running": "В процессе, осталось %s секунд",
-  "text.observable.status.finished": "Анализ завершён. Пожалуйста, подождите..."
+  "text.observable.status.finished": "Анализ завершён. Пожалуйста, подождите...",
+  "key.observable.cycle_render_mode": "Переключить режим рендеринга",
+  "text.observable.render_mode": "Режим рендеринга",
+  "text.observable.render_mode.cubes": "Кубы",
+  "text.observable.render_mode.wireframe": "Сетка"
 }

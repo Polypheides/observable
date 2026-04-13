@@ -114,13 +114,17 @@ object Overlay : ClientBridge, WorldRenderer {
         }
     }
 
-    override fun render(stack: Matrix4fc, bufferSource: MultiBufferSource, camera: Vec3, modelViewMatrix: Matrix4fc, delta: DeltaTracker, collector: SubmitNodeCollector, cameraState: CameraRenderState) {
+    override fun render(stack: Matrix4fc, bufferSource: MultiBufferSource, camera: Vec3, modelViewMatrix: Matrix4fc, delta: net.minecraft.client.DeltaTracker, collector: net.minecraft.client.renderer.SubmitNodeCollector, cameraState: net.minecraft.client.renderer.state.level.CameraRenderState) {
         if (ProfilerBridge.isSettingsKeyClicked()) {
             ProfilerBridge.openProfileScreen()
         }
         if (ProfilerBridge.isOverlayKeyClicked()) {
             Observable.isOverlayEnabled = !Observable.isOverlayEnabled
         }
+        if (Observable.KEY_CYCLE_RENDER_MODE.consumeClick()) {
+            ClientConfig.cycleRenderMode()
+        }
+        
         if (!Observable.isOverlayEnabled) return
         val player = Minecraft.getInstance().player ?: return
         if (Observable.RESULTS == null) return

@@ -60,7 +60,7 @@ object ProfilerBridge {
 
     @JvmStatic
     fun clear() {
-        // Clear references
+        bridge?.clear()
     }
 
     @JvmStatic
@@ -111,53 +111,56 @@ object ProfilerBridge {
 
     @JvmStatic
     fun drawWorldPass(stack: Matrix4fc, bufferSource: MultiBufferSource, camPos: Vec3, entries: List<BlockEntry>, labels: List<LabelEntry>, collector: SubmitNodeCollector, cameraState: CameraRenderState) {
-        val mc = Minecraft.getInstance()
+        if (entries.isEmpty()) return
         
-        // 1. Draw solid boxes (standard translucent pass)
-        if (entries.isNotEmpty()) {
-            val translucentBuffer = bufferSource.getBuffer(getTranslucent())
+        val mode = ClientSettings.renderMode
+
+        // 1. Draw X-Ray boxes
+        if (mode == RenderMode.CUBES) {
+            val buffer = bufferSource.getBuffer(observable.client.ObservableRenderTypes.getXRayBoxes())
             for (entry in entries) {
                 val x = entry.pos.x.toDouble() - camPos.x
                 val y = entry.pos.y.toDouble() - camPos.y
                 val z = entry.pos.z.toDouble() - camPos.z
-                f(translucentBuffer, stack, x.toFloat(), y.toFloat(), z.toFloat(), (x + 1.0).toFloat(), (y + 1.0).toFloat(), (z + 1.0).toFloat(),
+                f(buffer, stack, x.toFloat(), y.toFloat(), z.toFloat(), (x + 1.0).toFloat(), (y + 1.0).toFloat(), (z + 1.0).toFloat(),
                         (entry.color shr 16) and 0xFF, (entry.color shr 8) and 0xFF, entry.color and 0xFF, entry.alpha)
             }
         }
 
-        // 2. Draw glowing wireframes
-        val lineBuffer = bufferSource.getBuffer(observable.client.ObservableRenderTypes.getGlowLines())
-        
-        for (entry in entries) {
-            val x = entry.pos.x.toDouble() - camPos.x
-            val y = entry.pos.y.toDouble() - camPos.y
-            val z = entry.pos.z.toDouble() - camPos.z
+        // 2. Draw X-Ray wireframes
+        if (mode == RenderMode.WIREFRAME) {
+            val lineBuffer = bufferSource.getBuffer(observable.client.ObservableRenderTypes.getXRayLines())
             
-            // Inflate wireframe slightly more than filled box to ensure it caps it
-            val i = 0.02f
-            val x0 = x.toFloat() - i; val y0 = y.toFloat() - i; val z0 = z.toFloat() - i
-            val x1 = (x + 1.0).toFloat() + i; val y1 = (y + 1.0).toFloat() + i; val z1 = (z + 1.0).toFloat() + i
+            for (entry in entries) {
+                val x = entry.pos.x.toDouble() - camPos.x
+                val y = entry.pos.y.toDouble() - camPos.y
+                val z = entry.pos.z.toDouble() - camPos.z
+                
+                // Inflate wireframe slightly to overlap properly
+                val i = 0.02f
+                val x0 = x.toFloat() - i; val y0 = y.toFloat() - i; val z0 = z.toFloat() - i
+                val x1 = (x + 1.0).toFloat() + i; val y1 = (y + 1.0).toFloat() + i; val z1 = (z + 1.0).toFloat() + i
 
-            val r = (entry.color shr 16) and 0xFF
-            val g = (entry.color shr 8) and 0xFF
-            val b = entry.color and 0xFF
-            val a = 255
-            
-            // Edges - reasonable thickness for a clean look
-            l(lineBuffer, stack, x0, y0, z0, x1, y0, z0, r, g, b, a)
-            l(lineBuffer, stack, x1, y0, z0, x1, y0, z1, r, g, b, a)
-            l(lineBuffer, stack, x1, y0, z1, x0, y0, z1, r, g, b, a)
-            l(lineBuffer, stack, x0, y0, z1, x0, y0, z0, r, g, b, a)
+                val r = (entry.color shr 16) and 0xFF
+                val g = (entry.color shr 8) and 0xFF
+                val b = entry.color and 0xFF
+                val a = 255
+                
+                l(lineBuffer, stack, x0, y0, z0, x1, y0, z0, r, g, b, a)
+                l(lineBuffer, stack, x1, y0, z0, x1, y0, z1, r, g, b, a)
+                l(lineBuffer, stack, x1, y0, z1, x0, y0, z1, r, g, b, a)
+                l(lineBuffer, stack, x0, y0, z1, x0, y0, z0, r, g, b, a)
 
-            l(lineBuffer, stack, x0, y1, z0, x1, y1, z0, r, g, b, a)
-            l(lineBuffer, stack, x1, y1, z0, x1, y1, z1, r, g, b, a)
-            l(lineBuffer, stack, x1, y1, z1, x0, y1, z1, r, g, b, a)
-            l(lineBuffer, stack, x0, y1, z1, x0, y1, z0, r, g, b, a)
+                l(lineBuffer, stack, x0, y1, z0, x1, y1, z0, r, g, b, a)
+                l(lineBuffer, stack, x1, y1, z0, x1, y1, z1, r, g, b, a)
+                l(lineBuffer, stack, x1, y1, z1, x0, y1, z1, r, g, b, a)
+                l(lineBuffer, stack, x0, y1, z1, x0, y1, z0, r, g, b, a)
 
-            l(lineBuffer, stack, x0, y0, z0, x0, y1, z0, r, g, b, a)
-            l(lineBuffer, stack, x1, y0, z0, x1, y1, z0, r, g, b, a)
-            l(lineBuffer, stack, x1, y0, z1, x1, y1, z1, r, g, b, a)
-            l(lineBuffer, stack, x0, y0, z1, x0, y1, z1, r, g, b, a)
+                l(lineBuffer, stack, x0, y0, z0, x0, y1, z0, r, g, b, a)
+                l(lineBuffer, stack, x1, y0, z0, x1, y1, z0, r, g, b, a)
+                l(lineBuffer, stack, x1, y0, z1, x1, y1, z1, r, g, b, a)
+                l(lineBuffer, stack, x0, y0, z1, x0, y1, z1, r, g, b, a)
+            }
         }
         
         // Draw labels

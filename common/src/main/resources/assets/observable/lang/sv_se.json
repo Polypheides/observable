@@ -30,10 +30,14 @@
   "text.observable.suggest_action": "Överväg att använda Observable",
   "text.observable.announce": "Detta paket innehåller Observable för att hitta lag-källor. Se %s för att lära dig hur man använder det.",
   "screen.observable.client_settings": "Inställningar",
-  "text.observable.maxBlockDist": "Max avstånd för blocktexter (block):",
-  "text.observable.maxEntityDist": "Max avstånd för entitetstexter (block):",
+  "text.observable.maxBlockDist": "Max avstånd för blocktext (blocks):",
+  "text.observable.maxEntityDist": "Max avstånd för entitetstext (blocks ):",
   "text.observable.minRate": "Minsta hastighet att visualisera (μs/t):",
   "text.observable.normalize": "Normalisera resultat:",
   "text.observable.maxEntityCount": "Max antal entiteter:",
-  "text.observable.cmd": "Observable är en profiler på serversidan som kan hjälpa dig att räkna ut vad som laggar din server. För att lära dig mer, gå till %s."
+  "text.observable.cmd": "Observable är en profiler på serversidan som kan hjälpa dig att räkna ut vad som laggar din server. För att lära dig mer, gå till %s.",
+  "key.observable.cycle_render_mode": "Växla renderingsläge",
+  "text.observable.render_mode": "Renderingsläge",
+  "text.observable.render_mode.cubes": "Kuber",
+  "text.observable.render_mode.wireframe": "Trådmodell"
 }

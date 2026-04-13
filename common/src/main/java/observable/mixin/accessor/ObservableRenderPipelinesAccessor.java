@@ -11,4 +11,9 @@ public interface ObservableRenderPipelinesAccessor {
     static RenderPipeline.Snippet getLinesSnippet() {
         throw new UnsupportedOperationException();
     }
+
+    @Accessor("DEBUG_FILLED_SNIPPET")
+    static RenderPipeline.Snippet getDebugFilledSnippet() {
+        throw new AssertionError();
+    }
 }

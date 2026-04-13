@@ -5,6 +5,8 @@ plugins {
 
 dependencies {
     minecraft("com.mojang:minecraft:${project.rootProject.extra["minecraft_version"]}")
+    compileOnly("net.fabricmc:fabric-loader:${project.rootProject.extra["fabric_loader_version"]}")
+    
     
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.10.0")
     implementation("org.joml:joml:1.10.5")

@@ -9,6 +9,7 @@ import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent
 import net.neoforged.neoforge.common.NeoForge
+import observable.client.ObservableClient
 import observable.client.ProfilerBridge
 import net.neoforged.neoforge.event.RegisterCommandsEvent
 import net.neoforged.neoforge.event.server.ServerStartedEvent
@@ -63,7 +64,7 @@ class ObservableNeo(bus: IEventBus) {
     }
 
     private fun onClientSetup(event: FMLClientSetupEvent) {
-        Observable.clientInit()
+        ObservableClient.clientInit()
         
         NeoForge.EVENT_BUS.register(NeoRenderingListener)
         NeoForge.EVENT_BUS.register(NeoHudListener)
@@ -78,8 +79,9 @@ class ObservableNeo(bus: IEventBus) {
     }
 
     private fun onRegisterKeyMappings(event: RegisterKeyMappingsEvent) {
-        event.register(Observable.KEY_OPEN_SETTINGS)
-        event.register(Observable.KEY_TOGGLE_OVERLAY)
+        event.register(ObservableClient.KEY_OPEN_SETTINGS)
+        event.register(ObservableClient.KEY_TOGGLE_OVERLAY)
+        event.register(ObservableClient.KEY_CYCLE_RENDER_MODE)
     }
 
     private fun onRegisterCommands(event: RegisterCommandsEvent) {

@@ -22,12 +22,17 @@ import net.minecraft.client.gui.Font
 import java.util.function.BiConsumer
 import java.util.function.Consumer
 
+interface WorldRenderer {
+    fun render(stack: Matrix4fc, bufferSource: MultiBufferSource, camera: Vec3, modelViewMatrix: Matrix4fc, delta: DeltaTracker, collector: SubmitNodeCollector, cameraState: CameraRenderState)
+}
+
+
 object ProfilerBridge {
     const val MAX_DISTANCE_SQ = 4096.0
     private var renderDepth = 0
     private var screenOpener: Consumer<DeltaTracker>? = null
     private var hudRenderer: BiConsumer<GuiGraphicsExtractor, DeltaTracker>? = null
-    private var worldRenderer: observable.WorldRenderer? = null
+    private var worldRenderer: WorldRenderer? = null
     private var bridge: ClientBridge? = null
 
     val CATEGORY: KeyMapping.Category = KeyMapping.Category
@@ -44,7 +49,7 @@ object ProfilerBridge {
     }
 
     @JvmStatic
-    fun setWorldRenderer(renderer: observable.WorldRenderer) {
+    fun setWorldRenderer(renderer: WorldRenderer) {
         worldRenderer = renderer
     }
 

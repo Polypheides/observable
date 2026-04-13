@@ -6,7 +6,7 @@ import net.minecraft.client.gui.components.AbstractWidget
 import net.minecraft.client.gui.components.EditBox
 import net.minecraft.client.gui.screens.Screen
 import net.minecraft.network.chat.Component
-import observable.Observable
+import observable.client.ObservableClient
 import java.lang.NumberFormatException
 import kotlin.reflect.KMutableProperty0
 
@@ -78,7 +78,7 @@ class ClientSettingsGui : Screen(Component.translatable("screen.observable.clien
             20,
             Component.translatable("gui.back")
         ) {
-            Minecraft.getInstance().setScreen(Observable.PROFILE_SCREEN)
+            Minecraft.getInstance().setScreen(ObservableClient.PROFILE_SCREEN)
         }
     }
 

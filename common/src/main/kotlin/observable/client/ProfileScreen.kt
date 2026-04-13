@@ -6,8 +6,9 @@ import net.minecraft.client.gui.GuiGraphicsExtractor
 import net.minecraft.client.gui.components.Button
 import net.minecraft.client.gui.screens.ConfirmLinkScreen
 import net.minecraft.client.gui.screens.Screen
-import net.minecraft.network.chat.Component
 import observable.Observable
+import observable.client.ObservableClient
+import net.minecraft.network.chat.Component
 import observable.net.C2SPacket
 import observable.net.*
 import kotlin.math.roundToInt
@@ -134,12 +135,12 @@ class ProfileScreen : Screen(Component.translatable("screen.observable.profile")
                     samplerBtn.width,
                     20,
                     Component.translatable("text.observable.overlay"),
-                    Observable.isOverlayEnabled
+                    ObservableClient.isOverlayEnabled
                 ) {
                     if (it) {
                         synchronized(Overlay) { Overlay.load() }
                     }
-                    Observable.isOverlayEnabled = it
+                    ObservableClient.isOverlayEnabled = it
                 }
             )
 

@@ -19,15 +19,15 @@ import kotlin.math.roundToInt
 import net.minecraft.client.renderer.MultiBufferSource
 import net.minecraft.client.renderer.SubmitNodeCollector
 import net.minecraft.client.renderer.state.level.CameraRenderState
+import observable.client.ObservableClient
 import org.joml.Matrix4fc
-import observable.WorldRenderer
 
 /**
  * High-level Client Controller for Profile Overlay and HUD.
  */
 object Overlay : ClientBridge, WorldRenderer {
-    override val settingsKey = Observable.KEY_OPEN_SETTINGS
-    override val overlayKey = Observable.KEY_TOGGLE_OVERLAY
+    override val settingsKey = ObservableClient.KEY_OPEN_SETTINGS
+    override val overlayKey = ObservableClient.KEY_TOGGLE_OVERLAY
 
     
     data class RateEntry(val pos: BlockPos, val rate: Double)
@@ -94,7 +94,7 @@ object Overlay : ClientBridge, WorldRenderer {
     inline fun loadSync(lvl: ClientLevel? = null) = synchronized(this) { this.load(lvl) }
 
     fun renderHud(graphics: GuiGraphicsExtractor, delta: DeltaTracker) {
-        if (!Observable.isOverlayEnabled || Observable.RESULTS == null) return
+        if (!ObservableClient.isOverlayEnabled || Observable.RESULTS == null) return
         val mc = Minecraft.getInstance()
         val partialTicks = delta.getGameTimeDeltaPartialTick(true)
         val cameraPos = mc.gameRenderer.mainCamera.position()
@@ -119,13 +119,13 @@ object Overlay : ClientBridge, WorldRenderer {
             ProfilerBridge.openProfileScreen()
         }
         if (ProfilerBridge.isOverlayKeyClicked()) {
-            Observable.isOverlayEnabled = !Observable.isOverlayEnabled
+            ObservableClient.isOverlayEnabled = !ObservableClient.isOverlayEnabled
         }
-        if (Observable.KEY_CYCLE_RENDER_MODE.consumeClick()) {
+        if (ObservableClient.KEY_CYCLE_RENDER_MODE.consumeClick()) {
             ClientConfig.cycleRenderMode()
         }
         
-        if (!Observable.isOverlayEnabled) return
+        if (!ObservableClient.isOverlayEnabled) return
         val player = Minecraft.getInstance().player ?: return
         if (Observable.RESULTS == null) return
         

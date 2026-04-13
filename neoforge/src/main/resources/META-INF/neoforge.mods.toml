@@ -1,0 +1,20 @@
+modLoader="javafml"
+loaderVersion="[1,)"
+license="LGPLv3"
+
+[[mods]]
+modId="observable"
+version="5.4.3"
+displayName="Observable"
+authors="Film"
+description="Real-time profiling of entities and block entities."
+
+[[dependencies.observable]]
+    modId="neoforge"
+    type="required"
+    versionRange="[21,)"
+    ordering="NONE"
+    side="BOTH"
+
+[[mixins]]
+config="observable.common.json"

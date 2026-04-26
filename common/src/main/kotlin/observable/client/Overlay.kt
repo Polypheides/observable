@@ -114,7 +114,7 @@ object Overlay : ClientBridge, WorldRenderer {
         }
     }
 
-    override fun render(stack: Matrix4fc, bufferSource: MultiBufferSource, camera: Vec3, modelViewMatrix: Matrix4fc, delta: net.minecraft.client.DeltaTracker, collector: net.minecraft.client.renderer.SubmitNodeCollector, cameraState: net.minecraft.client.renderer.state.level.CameraRenderState) {
+    override fun render(stack: Matrix4fc, bufferSource: MultiBufferSource, camera: Vec3, modelViewMatrix: Matrix4fc, delta: net.minecraft.client.DeltaTracker, collector: net.minecraft.client.renderer.SubmitNodeCollector?, cameraState: net.minecraft.client.renderer.state.level.CameraRenderState, flush: Boolean) {
         if (ProfilerBridge.isSettingsKeyClicked()) {
             ProfilerBridge.openProfileScreen()
         }
@@ -171,6 +171,6 @@ object Overlay : ClientBridge, WorldRenderer {
             val color = RenderColor.fromNanos(it.rate)
             ProfilerBridge.BlockEntry(it.pos, color.hex, color.alpha)
         }
-        ProfilerBridge.drawWorldPass(stack, bufferSource, camPos, bridgeEntries, labels, collector, cameraState)
+        ProfilerBridge.drawWorldPass(stack, bufferSource, camPos, bridgeEntries, labels, collector, cameraState, flush)
     }
 }

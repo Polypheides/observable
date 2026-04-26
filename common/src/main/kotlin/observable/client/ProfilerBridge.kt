@@ -23,7 +23,7 @@ import java.util.function.BiConsumer
 import java.util.function.Consumer
 
 interface WorldRenderer {
-    fun render(stack: Matrix4fc, bufferSource: MultiBufferSource, camera: Vec3, modelViewMatrix: Matrix4fc, delta: DeltaTracker, collector: SubmitNodeCollector, cameraState: CameraRenderState)
+    fun render(stack: Matrix4fc, bufferSource: MultiBufferSource, camera: Vec3, modelViewMatrix: Matrix4fc, delta: DeltaTracker, collector: SubmitNodeCollector?, cameraState: CameraRenderState, flush: Boolean = false)
 }
 
 
@@ -99,7 +99,7 @@ object ProfilerBridge {
     }
 
     @JvmStatic
-    fun render(projection: Matrix4fc?, modelView: Matrix4fc, cameraPos: Vec3, stack: Matrix4fc, delta: DeltaTracker, collector: SubmitNodeCollector, cameraState: CameraRenderState) {
+    fun render(projection: Matrix4fc?, modelView: Matrix4fc, cameraPos: Vec3, stack: Matrix4fc, delta: DeltaTracker, collector: SubmitNodeCollector?, cameraState: CameraRenderState, flush: Boolean = false) {
         if (renderDepth > 0) {
             return
         }
@@ -107,7 +107,7 @@ object ProfilerBridge {
         try {
             worldRenderer?.let {
                 val bufferSource = Minecraft.getInstance().renderBuffers().bufferSource()
-                it.render(stack, bufferSource, cameraPos, modelView, delta, collector, cameraState)
+                it.render(stack, bufferSource, cameraPos, modelView, delta, collector, cameraState, flush)
             }
         } finally {
             renderDepth--
@@ -115,8 +115,8 @@ object ProfilerBridge {
     }
 
     @JvmStatic
-    fun drawWorldPass(stack: Matrix4fc, bufferSource: MultiBufferSource, camPos: Vec3, entries: List<BlockEntry>, labels: List<LabelEntry>, collector: SubmitNodeCollector, cameraState: CameraRenderState) {
-        if (entries.isEmpty()) return
+    fun drawWorldPass(stack: Matrix4fc, bufferSource: MultiBufferSource, camPos: Vec3, entries: List<BlockEntry>, labels: List<LabelEntry>, collector: SubmitNodeCollector?, cameraState: CameraRenderState, flush: Boolean = false) {
+        if (entries.isEmpty() && labels.isEmpty()) return
         
         val mode = ClientSettings.renderMode
 
@@ -174,7 +174,7 @@ object ProfilerBridge {
             val distSq = label.pos.distanceToSqr(camPos)
             if (distSq > ProfilerBridge.MAX_DISTANCE_SQ) continue
 
-            val labelMatrix = Matrix4f()
+            val labelMatrix = Matrix4f(stack)
             labelMatrix.translate(
                 (label.pos.x - camPos.x).toFloat(), 
                 (label.pos.y - camPos.y + 0.5).toFloat(), 
@@ -198,6 +198,10 @@ object ProfilerBridge {
                 0, 
                 0xF000F0 
             )
+        }
+        
+        if (flush && bufferSource is MultiBufferSource.BufferSource) {
+            bufferSource.endBatch()
         }
     }
 

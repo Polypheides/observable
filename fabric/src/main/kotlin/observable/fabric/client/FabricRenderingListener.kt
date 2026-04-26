@@ -8,7 +8,7 @@ import observable.client.ProfilerBridge
 
 object FabricRenderingListener {
     fun register() {
-        LevelRenderEvents.COLLECT_SUBMITS.register { context ->
+        LevelRenderEvents.END_MAIN.register { context ->
             render(context)
         }
     }
@@ -42,7 +42,8 @@ object FabricRenderingListener {
             capturedStack,
             deltaTracker,
             collector,
-            cameraState
+            cameraState,
+            true // FLUSH labels over translucent terrain
         )
     }
 }

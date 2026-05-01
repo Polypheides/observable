@@ -9,8 +9,8 @@ object ObservableClient {
     val PROFILE_SCREEN by lazy { ProfileScreen() }
     
     val KEY_OPEN_SETTINGS by lazy { KeyMapping("key.observable.settings", 85, ProfilerBridge.CATEGORY) }
-    val KEY_TOGGLE_OVERLAY by lazy { KeyMapping("key.observable.overlay", 82, ProfilerBridge.CATEGORY) }
-    val KEY_CYCLE_RENDER_MODE by lazy { KeyMapping("key.observable.cycle_render_mode", 91, ProfilerBridge.CATEGORY) }
+    val KEY_TOGGLE_OVERLAY by lazy { KeyMapping("key.observable.overlay", com.mojang.blaze3d.platform.InputConstants.UNKNOWN.value, ProfilerBridge.CATEGORY) }
+    val KEY_CYCLE_RENDER_MODE by lazy { KeyMapping("key.observable.cycle_render_mode", com.mojang.blaze3d.platform.InputConstants.UNKNOWN.value, ProfilerBridge.CATEGORY) }
 
     var isOverlayEnabled: Boolean
         get() = ClientConfig.data.isOverlayEnabled
@@ -18,6 +18,15 @@ object ObservableClient {
             ClientConfig.data.isOverlayEnabled = v
             ClientConfig.save()
         }
+
+    fun showJoinMessage() {
+        if (ClientConfig.data.silenceJoinMessage) return
+        val mc = Minecraft.getInstance()
+        val keyOverlay = KEY_TOGGLE_OVERLAY.translatedKeyMessage
+        val keySettings = KEY_OPEN_SETTINGS.translatedKeyMessage
+        val msg = net.minecraft.network.chat.Component.translatable("text.observable.join_message", keyOverlay, keySettings)
+        mc.player?.sendSystemMessage(msg)
+    }
 
     fun clientInit() {
         Observable.LOGGER.info("Starting Observable Client-side initialization...")
@@ -28,7 +37,12 @@ object ObservableClient {
         ProfilerBridge.setHudRenderer(Overlay::renderHud)
         
         ProfilerBridge.setScreenOpener {
-            Minecraft.getInstance().setScreen(PROFILE_SCREEN)
+            val mc = Minecraft.getInstance()
+            if (mc.screen is ProfileScreen) {
+                mc.setScreen(null)
+            } else {
+                mc.setScreen(PROFILE_SCREEN)
+            }
         }
 
         Observable.CHANNEL.register { t: S2CPacket.ProfilingStarted, _ ->

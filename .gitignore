@@ -22,6 +22,9 @@ classes/
 .architectury-transformer/
 .gradle-cache/
 
-src_decompiled/
-src/main/resources/assets/observable/lang/en_us.json
-src/main/resources/assets/observable/lang/ru_ru.json
+common/src/main/resources/icon_old.png
+
+# Local Tools and Context
+tools/
+docs/
+scripts/

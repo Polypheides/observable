@@ -4,13 +4,13 @@
   "version": "${version}",
   "name": "Observable",
   "description": "See what's lagging your world.",
-  "authors": ["tasgon"],
+  "authors": ["tasgon", "nef", "Polypheides"],
   "contact": {
     "homepage": "https://github.com/tasgon/observable",
     "sources": "https://github.com/tasgon/observable"
   },
   "license": "MPL",
-  "icon": "assets/observable/icon.png",
+  "icon": "icon.png",
   "environment": "*",
   "entrypoints": {
     "main": ["observable.fabric.ObservableFabric"],

@@ -6,7 +6,8 @@ license="LGPLv3"
 modId="observable"
 version="5.4.3"
 displayName="Observable"
-authors="Film"
+authors="tasgon, nef, Polypheides"
+logoFile="icon.png"
 description="Real-time profiling of entities and block entities."
 
 [[dependencies.observable]]

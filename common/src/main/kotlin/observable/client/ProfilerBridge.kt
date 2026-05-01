@@ -34,6 +34,7 @@ object ProfilerBridge {
     private var hudRenderer: BiConsumer<GuiGraphicsExtractor, DeltaTracker>? = null
     private var worldRenderer: WorldRenderer? = null
     private var bridge: ClientBridge? = null
+    private val scratchMatrix = Matrix4f()
 
     val CATEGORY: KeyMapping.Category = KeyMapping.Category
         .register(Identifier.fromNamespaceAndPath("observable", "main"))
@@ -120,51 +121,32 @@ object ProfilerBridge {
         
         val mode = ClientSettings.renderMode
 
-        // 1. Draw X-Ray boxes
-        if (mode == RenderMode.CUBES) {
-            val buffer = bufferSource.getBuffer(observable.client.ObservableRenderTypes.getXRayBoxes())
-            for (entry in entries) {
-                val x = entry.pos.x.toDouble() - camPos.x
-                val y = entry.pos.y.toDouble() - camPos.y
-                val z = entry.pos.z.toDouble() - camPos.z
-                f(buffer, stack, x.toFloat(), y.toFloat(), z.toFloat(), (x + 1.0).toFloat(), (y + 1.0).toFloat(), (z + 1.0).toFloat(),
-                        (entry.color shr 16) and 0xFF, (entry.color shr 8) and 0xFF, entry.color and 0xFF, entry.alpha)
-            }
-        }
+        // 1. Draw X-Ray Geometry (Cubes or Wireframes)
+        if (entries.isNotEmpty()) {
+            val buffer = if (mode == RenderMode.CUBES) 
+                bufferSource.getBuffer(observable.client.ObservableRenderTypes.getXRayBoxes()) 
+            else 
+                bufferSource.getBuffer(observable.client.ObservableRenderTypes.getXRayLines())
 
-        // 2. Draw X-Ray wireframes
-        if (mode == RenderMode.WIREFRAME) {
-            val lineBuffer = bufferSource.getBuffer(observable.client.ObservableRenderTypes.getXRayLines())
-            
             for (entry in entries) {
-                val x = entry.pos.x.toDouble() - camPos.x
-                val y = entry.pos.y.toDouble() - camPos.y
-                val z = entry.pos.z.toDouble() - camPos.z
+                val x = (entry.pos.x - camPos.x).toFloat()
+                val y = (entry.pos.y - camPos.y).toFloat()
+                val z = (entry.pos.z - camPos.z).toFloat()
                 
-                // Inflate wireframe slightly to overlap properly
-                val i = 0.02f
-                val x0 = x.toFloat() - i; val y0 = y.toFloat() - i; val z0 = z.toFloat() - i
-                val x1 = (x + 1.0).toFloat() + i; val y1 = (y + 1.0).toFloat() + i; val z1 = (z + 1.0).toFloat() + i
-
                 val r = (entry.color shr 16) and 0xFF
                 val g = (entry.color shr 8) and 0xFF
                 val b = entry.color and 0xFF
-                val a = 255
                 
-                l(lineBuffer, stack, x0, y0, z0, x1, y0, z0, r, g, b, a)
-                l(lineBuffer, stack, x1, y0, z0, x1, y0, z1, r, g, b, a)
-                l(lineBuffer, stack, x1, y0, z1, x0, y0, z1, r, g, b, a)
-                l(lineBuffer, stack, x0, y0, z1, x0, y0, z0, r, g, b, a)
+                // Inflate slightly to avoid Z-fighting and ensure clean lines
+                val i = 0.02f
+                val x0 = x - i; val y0 = y - i; val z0 = z - i
+                val x1 = x + 1.0f + i; val y1 = y + 1.0f + i; val z1 = z + 1.0f + i
 
-                l(lineBuffer, stack, x0, y1, z0, x1, y1, z0, r, g, b, a)
-                l(lineBuffer, stack, x1, y1, z0, x1, y1, z1, r, g, b, a)
-                l(lineBuffer, stack, x1, y1, z1, x0, y1, z1, r, g, b, a)
-                l(lineBuffer, stack, x0, y1, z1, x0, y1, z0, r, g, b, a)
-
-                l(lineBuffer, stack, x0, y0, z0, x0, y1, z0, r, g, b, a)
-                l(lineBuffer, stack, x1, y0, z0, x1, y1, z0, r, g, b, a)
-                l(lineBuffer, stack, x1, y0, z1, x1, y1, z1, r, g, b, a)
-                l(lineBuffer, stack, x0, y0, z1, x0, y1, z1, r, g, b, a)
+                if (mode == RenderMode.CUBES) {
+                    f(buffer, stack, x0, y0, z0, x1, y1, z1, r, g, b, entry.alpha)
+                } else {
+                    drawWireframe(buffer, stack, x0, y0, z0, x1, y1, z1, r, g, b, 255)
+                }
             }
         }
         
@@ -174,25 +156,23 @@ object ProfilerBridge {
             val distSq = label.pos.distanceToSqr(camPos)
             if (distSq > ProfilerBridge.MAX_DISTANCE_SQ) continue
 
-            val labelMatrix = Matrix4f(stack)
-            labelMatrix.translate(
-                (label.pos.x - camPos.x).toFloat(), 
-                (label.pos.y - camPos.y + 0.5).toFloat(), 
-                (label.pos.z - camPos.z).toFloat()
-            )
-            labelMatrix.rotate(cameraState.orientation)
-            labelMatrix.scale(0.025f, -0.025f, 0.025f)
+            val x = (label.pos.x - camPos.x).toFloat()
+            val y = (label.pos.y - camPos.y + 0.5).toFloat()
+            val z = (label.pos.z - camPos.z).toFloat()
+            
+            scratchMatrix.set(stack)
+            scratchMatrix.translate(x, y, z)
+            scratchMatrix.rotate(cameraState.orientation)
+            scratchMatrix.scale(0.025f, -0.025f, 0.025f)
             
             val text = label.text
-            val width = font.width(text)
-            
             font.drawInBatch(
                 text,
-                -width / 2.0f,
+                -font.width(text) / 2.0f,
                 0.0f,
                 label.color or (0xFF shl 24),
                 false,
-                labelMatrix,
+                scratchMatrix,
                 bufferSource,
                 Font.DisplayMode.SEE_THROUGH,
                 0, 
@@ -230,6 +210,23 @@ object ProfilerBridge {
         v(c, m, x0, y1, z1, r, g, b, a)
         v(c, m, x1, y1, z1, r, g, b, a)
         v(c, m, x1, y1, z0, r, g, b, a)
+    }
+
+    private fun drawWireframe(c: VertexConsumer, m: Matrix4fc, x0: Float, y0: Float, z0: Float, x1: Float, y1: Float, z1: Float, r: Int, g: Int, b: Int, a: Int) {
+        l(c, m, x0, y0, z0, x1, y0, z0, r, g, b, a)
+        l(c, m, x1, y0, z0, x1, y0, z1, r, g, b, a)
+        l(c, m, x1, y0, z1, x0, y0, z1, r, g, b, a)
+        l(c, m, x0, y0, z1, x0, y0, z0, r, g, b, a)
+
+        l(c, m, x0, y1, z0, x1, y1, z0, r, g, b, a)
+        l(c, m, x1, y1, z0, x1, y1, z1, r, g, b, a)
+        l(c, m, x1, y1, z1, x0, y1, z1, r, g, b, a)
+        l(c, m, x0, y1, z1, x0, y1, z0, r, g, b, a)
+
+        l(c, m, x0, y0, z0, x0, y1, z0, r, g, b, a)
+        l(c, m, x1, y0, z0, x1, y1, z0, r, g, b, a)
+        l(c, m, x1, y0, z1, x1, y1, z1, r, g, b, a)
+        l(c, m, x0, y0, z1, x0, y1, z1, r, g, b, a)
     }
 
     private fun l(c: VertexConsumer, m: Matrix4fc, x0: Float, y0: Float, z0: Float, x1: Float, y1: Float, z1: Float, r: Int, g: Int, b: Int, a: Int) {

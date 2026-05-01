@@ -150,38 +150,18 @@ class ProfileScreen : Screen(Component.translatable("screen.observable.profile")
         this.clearBtn = clearBtn
 
         val modeBottomY = clearBtn.y + clearBtn.height + 4
-        val learnBtn =
-            button(
-                startBtn.x,
-                modeBottomY,
-                (settingsBtn.x + settingsBtn.width - startBtn.x) / 3 - 2,
-                20,
-                Component.translatable("text.observable.docs")
-            ) {
-                openLink("https://github.com/tasgon/observable/wiki")
-            }
+        val totalWidth = settingsBtn.x + settingsBtn.width - startBtn.x
+        val btnWidth = (totalWidth - 8) / 3
         
-        val smallWidth = learnBtn.width
-        val helpBtn =
-            button(
-                learnBtn.x + learnBtn.width + 4,
-                learnBtn.y,
-                smallWidth,
-                20,
-                Component.translatable("text.observable.discord")
-            ) {
-                openLink("https://discord.gg/sfPbb3b5tF")
-            }
-        val donateBtn =
-            button(
-                helpBtn.x + helpBtn.width + 4,
-                helpBtn.y,
-                smallWidth,
-                20,
-                Component.translatable("text.observable.donate")
-            ) {
-                openLink("https://github.com/tasgon/observable/wiki/Support-this-project")
-            }
+        val links = listOf(
+            "text.observable.docs" to "https://github.com/tasgon/observable/wiki",
+            "text.observable.discord" to "https://discord.gg/sfPbb3b5tF",
+            "text.observable.donate" to "https://github.com/tasgon/observable/wiki/Support-this-project"
+        )
+        
+        links.forEachIndexed { i, (lang, url) ->
+            button(startBtn.x + (i * (btnWidth + 4)), modeBottomY, btnWidth, 20, Component.translatable(lang)) { openLink(url) }
+        }
 
         this.startBtn = startBtn
         Observable.CHANNEL.sendToServer(C2SPacket.RequestAvailability)
@@ -240,7 +220,11 @@ class ProfileScreen : Screen(Component.translatable("screen.observable.profile")
             val hintY = it.y + it.height + 4 + 20 + 8 // Below clearBtn + gap + bottom buttons + gap
             val hintKeyOverlay = ObservableClient.KEY_TOGGLE_OVERLAY.translatedKeyMessage
             val hintKeySettings = ObservableClient.KEY_OPEN_SETTINGS.translatedKeyMessage
-            val hintText = Component.translatable("text.observable.help_toggle", hintKeyOverlay, hintKeySettings)
+            val hintText = if (ObservableClient.KEY_TOGGLE_OVERLAY.isUnbound) {
+                Component.translatable("text.observable.help_unbound", hintKeySettings)
+            } else {
+                Component.translatable("text.observable.help_toggle", hintKeyOverlay, hintKeySettings)
+            }
             graphics.text(this.font, hintText, width / 2 - this.font.width(hintText) / 2, hintY, -1, true)
         }
     }

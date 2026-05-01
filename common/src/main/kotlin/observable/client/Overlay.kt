@@ -20,6 +20,7 @@ import net.minecraft.client.renderer.MultiBufferSource
 import net.minecraft.client.renderer.SubmitNodeCollector
 import net.minecraft.client.renderer.state.level.CameraRenderState
 import observable.client.ObservableClient
+import observable.server.ProfilingData
 import org.joml.Matrix4fc
 
 /**
@@ -33,20 +34,22 @@ object Overlay : ClientBridge, WorldRenderer {
     data class RateEntry(val pos: BlockPos, val rate: Double)
     
     object RenderColor {
-        fun fromNanos(rateNanos: Double): observable.client.Overlay.Color {
+        fun fromNanos(rateNanos: Double): PackedColor {
             val rateMicros = rateNanos / 1000.0
-            return observable.client.Overlay.Color(
-                (rateMicros / 100.0 * 255).toInt().coerceIn(0, 255),
-                ((100.0 - rateMicros) / 100.0 * 255).toInt().coerceIn(0, 255),
-                0,
-                (rateMicros / 100.0 * 255).toInt().coerceIn(20, 100)
-            )
+            val r = (rateMicros / 100.0 * 255).toInt().coerceIn(0, 255)
+            val g = ((100.0 - rateMicros) / 100.0 * 255).toInt().coerceIn(0, 255)
+            val a = (rateMicros / 100.0 * 255).toInt().coerceIn(20, 100)
+            return PackedColor((a shl 24) or (r shl 16) or (g shl 8))
         }
     }
 
-    data class Color(val r: Int, val g: Int, val b: Int, val a: Int) {
-        val hex: Int get() = (0xFF shl 24) or (r shl 16) or (g shl 8) or b
-        val alpha: Int get() = a
+    @JvmInline
+    value class PackedColor(val argb: Int) {
+        val r get() = (argb shr 16) and 0xFF
+        val g get() = (argb shr 8) and 0xFF
+        val b get() = argb and 0xFF
+        val a get() = (argb shr 24) and 0xFF
+        val hex get() = argb or (0xFF shl 24)
     }
 
     sealed class Entry {
@@ -68,26 +71,29 @@ object Overlay : ClientBridge, WorldRenderer {
         Observable.RESULTS = null
     }
 
+    private fun normalize(dataEntry: ProfilingData.Entry, totalTicks: Int, norm: Boolean): Double {
+        return dataEntry.rate * (if (norm) dataEntry.ticks.toDouble() / totalTicks else 1.0)
+    }
+
     fun load(lvl: ClientLevel? = null) {
         val data = Observable.RESULTS ?: return
         val level = lvl ?: Minecraft.getInstance().level ?: return
         val levelLocation = level.dimension().identifier()
-        val ticks = data.ticks
+        val totalTicks = data.ticks
         val norm = ClientSettings.normalized
         val minRate = ClientSettings.minRate
 
         entities = data.entities[levelLocation]
-            ?.map { Entry.EntityEntry(it.entityId!!, it.rate * (if (norm) it.ticks.toDouble() / ticks else 1.0)) }
+            ?.map { Entry.EntityEntry(it.entityId!!, normalize(it, totalTicks, norm)) }
             ?.filter { it.rate >= minRate }
             ?.sortedByDescending { it.rate }.orEmpty()
 
         val blks = data.blocks[levelLocation]
-            ?.map { RateEntry(it.position, it.rate * (if (norm) it.ticks.toDouble() / ticks else 1.0)) }
+            ?.map { RateEntry(it.position, normalize(it, totalTicks, norm)) }
             ?.filter { it.rate >= minRate }.orEmpty()
         
-        val newMap = blks.groupBy { ChunkPos.containing(it.pos) }
         synchronized(this) {
-            blockMap = newMap
+            blockMap = blks.groupBy { ChunkPos.containing(it.pos) }
         }
     }
 
@@ -169,7 +175,7 @@ object Overlay : ClientBridge, WorldRenderer {
 
         val bridgeEntries = visibleBoxEntries.map { 
             val color = RenderColor.fromNanos(it.rate)
-            ProfilerBridge.BlockEntry(it.pos, color.hex, color.alpha)
+            ProfilerBridge.BlockEntry(it.pos, color.hex, color.a)
         }
         ProfilerBridge.drawWorldPass(stack, bufferSource, camPos, bridgeEntries, labels, collector, cameraState, flush)
     }

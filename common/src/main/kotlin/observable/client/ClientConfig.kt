@@ -16,7 +16,8 @@ enum class RenderMode {
 data class ConfigData(
     var isOverlayEnabled: Boolean = true,
     var renderMode: RenderMode = RenderMode.CUBES,
-    var profileDuration: Int = 30
+    var profileDuration: Int = 30,
+    var silenceJoinMessage: Boolean = true
 )
 
 object ClientConfig {

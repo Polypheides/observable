@@ -10,7 +10,7 @@
     "sources": "https://github.com/tasgon/observable"
   },
   "license": "MPL",
-  "icon": "assets/observable/icon.png",
+  "icon": "icon.png",
   "environment": "*",
   "entrypoints": {
     "main": ["observable.fabric.ObservableFabric"],

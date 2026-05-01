@@ -16,6 +16,10 @@ object FabricClientListener {
         ClientPlayConnectionEvents.DISCONNECT.register { _, _ ->
             ProfilerBridge.clear()
         }
+
+        ClientPlayConnectionEvents.JOIN.register { _, _, _ ->
+            ObservableClient.showJoinMessage()
+        }
     }
 
     private fun handleInput(mc: Minecraft) {

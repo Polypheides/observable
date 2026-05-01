@@ -53,6 +53,7 @@ class ObservableNeo(bus: IEventBus) {
         NeoForge.EVENT_BUS.addListener(::onServerStopping)
         NeoForge.EVENT_BUS.addListener(::onRegisterCommands)
         NeoForge.EVENT_BUS.addListener(::onLoggingOut)
+        NeoForge.EVENT_BUS.addListener(::onLoggingIn)
         bus.addListener(::onRegisterPayloads)
 
         // Force channel creation to register the network listener
@@ -94,5 +95,9 @@ class ObservableNeo(bus: IEventBus) {
 
     private fun onLoggingOut(event: ClientPlayerNetworkEvent.LoggingOut) {
         ProfilerBridge.clear()
+    }
+
+    private fun onLoggingIn(event: ClientPlayerNetworkEvent.LoggingIn) {
+        ObservableClient.showJoinMessage()
     }
 }

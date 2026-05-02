@@ -42,4 +42,12 @@ class TraceMap(
             target = traceMap
         }
     }
+
+    fun merge(other: TraceMap) {
+        this.count += other.count
+        other.children.forEach { (key, otherChild) ->
+            val thisChild = this.children.getOrPut(key) { TraceMap(key.className, key.classMethod) }
+            thisChild.merge(otherChild)
+        }
+    }
 }

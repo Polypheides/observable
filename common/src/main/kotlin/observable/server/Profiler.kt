@@ -137,7 +137,13 @@ class Profiler {
         val playerList = player?.let { listOf(it) } ?: listOf()
         Observable.CHANNEL.sendToPlayers(playerList, S2CPacket.ProfilingCompleted)
         
-        val data = ProfilingData.create(timingsMap, blockTimingsMap, ticks)
+        val rootTraceMap = TraceMap("Server", "all")
+        timingsMap.values.forEach { rootTraceMap.merge(it.traces as TraceMap) }
+        blockTimingsMap.values.forEach { posMap -> 
+            posMap.values.forEach { rootTraceMap.merge(it.traces as TraceMap) }
+        }
+        
+        val data = ProfilingData.create(timingsMap, blockTimingsMap, ticks, rootTraceMap)
         Observable.RESULTS = data
         
         Observable.LOGGER.info("Profiler ran for $ticks ticks, sending data")

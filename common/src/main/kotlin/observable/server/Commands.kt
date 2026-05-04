@@ -161,7 +161,7 @@ object ObservableCommands {
 
         val rotation = net.minecraft.world.entity.PositionMoveRotation(pos, Vec3.ZERO, 0f, 0f)
         player.teleportTo(pos.x, pos.y, pos.z)
-        if (level == player.level() as net.minecraft.server.level.ServerLevel) {
+        if (level == player.level()) {
             player.connection.teleport(rotation, setOf())
         } else {
             player.teleportTo(level, pos.x, pos.y, pos.z, setOf(), 0F, 0F, false)

@@ -97,7 +97,7 @@ object Overlay : ClientBridge, WorldRenderer {
         }
     }
 
-    inline fun loadSync(lvl: ClientLevel? = null) = synchronized(this) { this.load(lvl) }
+    fun loadSync(lvl: ClientLevel? = null) = synchronized(this) { this.load(lvl) }
 
     fun renderHud(graphics: GuiGraphicsExtractor, delta: DeltaTracker) {
         if (!ObservableClient.isOverlayEnabled || Observable.RESULTS == null) return

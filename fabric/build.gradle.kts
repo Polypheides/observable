@@ -1,5 +1,6 @@
 plugins {
     id("net.fabricmc.fabric-loom")
+    kotlin("jvm") version "2.3.20"
     kotlin("plugin.serialization") version "2.3.20"
 }
 
@@ -39,5 +40,5 @@ tasks {
 tasks.register<Copy>("copyToFabric") {
     dependsOn("jar")
     from(tasks.jar.flatMap { it.archiveFile })
-    into("D:/Program Files (x86)/PrismLauncher-Windows-MSVC-Portable-8.2/instances/26.1.2/.minecraft/mods")
+    into(findProperty("local_mods_path_fabric") ?: layout.buildDirectory.dir("libs"))
 }

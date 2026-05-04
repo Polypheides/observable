@@ -12,18 +12,18 @@ neoForge {
     runs {
         create("client") {
             client()
-            systemProperty("neoforge.enabledGameTestNamespaces", project.rootProject.extra["modId"] as String)
+            systemProperty("neoforge.enabledGameTestNamespaces", rootProject.extra["modId"] as String)
         }
         create("server") {
             server()
             programArgument("--nogui")
-            systemProperty("neoforge.enabledGameTestNamespaces", project.rootProject.extra["modId"] as String)
+            systemProperty("neoforge.enabledGameTestNamespaces", rootProject.extra["modId"] as String)
         }
     }
 
     mods {
-        create(project.rootProject.extra["modId"] as String) {
-            sourceSet(project.sourceSets.main.get())
+        create(rootProject.extra["modId"] as String) {
+            sourceSet(sourceSets.main.get())
         }
     }
 }
@@ -41,5 +41,5 @@ tasks.jar {
 tasks.register<Copy>("copyToNeo") {
     dependsOn("jar")
     from(tasks.jar.flatMap { it.archiveFile })
-    into("D:/Program Files (x86)/PrismLauncher-Windows-MSVC-Portable-8.2/instances/26.1.2(1)/.minecraft/mods")
+    into(findProperty("local_mods_path_neo") ?: layout.buildDirectory.dir("libs"))
 }

@@ -21,6 +21,7 @@
   "text.observable.get_field": "Ange profil-URL/hash...",
   "text.observable.help_toggle": "Tryck på %s för skärminfo, %s för meny",
   "text.observable.help_unbound": "Ställ in en tangent för skärminfo. Tryck %s för meny",
+  "text.observable.join_message": "Observable: Tryck på %s för skärminfo, %s för meny.\nDu kan dölja detta meddelande i inställningarna.",
   "text.observable.maxBlockDist": "Max avstånd för blocktext (blocks):",
   "text.observable.maxEntityCount": "Max antal entiteter:",
   "text.observable.maxEntityDist": "Max avstånd för entitetstext (blocks ):",

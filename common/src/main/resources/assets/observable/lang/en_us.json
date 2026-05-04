@@ -21,6 +21,7 @@
   "text.observable.get_field": "Enter profile URL/hash...",
   "text.observable.help_toggle": "Press %s to toggle overlay, %s for menu",
   "text.observable.help_unbound": "Set a keybind to toggle overlay. Press %s for menu",
+  "text.observable.join_message": "Observable: Press %s to toggle overlay, %s to toggle menu.\nYou can disable this message in settings.",
   "text.observable.maxBlockDist": "Max block label distance (blocks):",
   "text.observable.maxEntityCount": "Max # of entities:",
   "text.observable.maxEntityDist": "Max entity label distance (blocks):",

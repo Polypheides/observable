@@ -69,6 +69,22 @@ class ObservableNeo(bus: IEventBus) {
         
         NeoForge.EVENT_BUS.register(NeoRenderingListener)
         NeoForge.EVENT_BUS.register(NeoHudListener)
+
+        // Client tick for keybind input + deep-link injector
+        NeoForge.EVENT_BUS.addListener<net.neoforged.neoforge.client.event.ClientTickEvent.Post> {
+            val mc = net.minecraft.client.Minecraft.getInstance()
+            if (ObservableClient.KEY_OPEN_SETTINGS.consumeClick() && mc.player != null) {
+                ProfilerBridge.openProfileScreen()
+            }
+            while (ObservableClient.KEY_TOGGLE_OVERLAY.consumeClick()) {
+                ObservableClient.isOverlayEnabled = !ObservableClient.isOverlayEnabled
+                mc.player?.sendSystemMessage(
+                    net.minecraft.network.chat.Component.literal("§7[§6Observable§7] §fOverlay " +
+                        (if (ObservableClient.isOverlayEnabled) "§aEnabled" else "§cDisabled"))
+                )
+            }
+            observable.client.KeyBindDeepLink.tick()
+        }
     }
 
     private fun onServerStarted(event: ServerStartedEvent) {

@@ -11,6 +11,7 @@ object FabricClientListener {
     fun register() {
         ClientTickEvents.END_CLIENT_TICK.register { mc ->
             handleInput(mc)
+            observable.client.KeyBindDeepLink.tick()
         }
 
         ClientPlayConnectionEvents.DISCONNECT.register { _, _ ->

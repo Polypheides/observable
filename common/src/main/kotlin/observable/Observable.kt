@@ -30,7 +30,7 @@ object Observable {
     }
 
     fun hasPermission(player: ServerPlayer): Boolean {
-        val server = (player.level() as ServerLevel).server
+        val server = player.level().server
         return server.playerList.isOp(player.nameAndId())
     }
 
@@ -55,7 +55,7 @@ object Observable {
         }
 
         CHANNEL.register { _: C2SPacket.RequestAvailability, player ->
-            (player as? ServerPlayer)?.let {
+            player?.let {
                 CHANNEL.sendToPlayer(
                     it,
                     if (hasPermission(it)) S2CPacket.Availability.Available else S2CPacket.Availability.NoPermissions

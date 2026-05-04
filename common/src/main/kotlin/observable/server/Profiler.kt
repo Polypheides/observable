@@ -26,7 +26,7 @@ import kotlin.random.Random
 class Profiler {
     var timingsMap = HashMap<Entity, NativeTimingData>()
     var blockTimingsMap = HashMap<ResourceKey<Level>, HashMap<BlockPos, NativeTimingData>>()
-    private val lock = Object()
+    private val lock = Any()
 
     var notProcessing: Boolean
         get() = Props.notProcessing.get()
@@ -43,7 +43,7 @@ class Profiler {
         blockTimingsMap
             .getOrPut(level.dimension()) { HashMap() }
             .getOrPut(blockEntity.pos) {
-                NativeTimingData(0, 0, blockEntity.type.toString(), TraceMap(blockEntity::class))
+                NativeTimingData(0, 0, blockEntity.type, TraceMap(blockEntity.javaClass.name))
             }
 
     fun processBlock(state: BlockState, pos: BlockPos, level: Level) =
@@ -106,7 +106,7 @@ class Profiler {
         val serialized = Json.encodeToString(DataWithDiagnostics(data, diagnostics))
 
         return try {
-            val conn = URL(ServerSettings.uploadURL).openConnection() as HttpURLConnection
+            val conn = java.net.URI.create(ServerSettings.uploadURL).toURL().openConnection() as HttpURLConnection
             conn.requestMethod = "POST"
             conn.doOutput = true
 

@@ -27,7 +27,7 @@ class TraceMap(
         }
     }
 
-    inline fun add(traces: Iterator<StackTraceElement>) {
+    fun add(traces: Iterator<StackTraceElement>) {
         if (!traces.hasNext()) return
         count += 1
         val tr = traces.next()

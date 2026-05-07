@@ -18,7 +18,10 @@
   },
   "mixins": [
     "observable.common.mixin.json",
-    "observable.common.accessors.json"
+    {
+      "config": "observable.common.accessors.json",
+      "environment": "client"
+    }
   ],
   "depends": {
     "fabricloader": ">=0.19.1",

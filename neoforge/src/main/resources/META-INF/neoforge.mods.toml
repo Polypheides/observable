@@ -22,3 +22,4 @@ config="observable.common.mixin.json"
 
 [[mixins]]
 config="observable.common.accessors.json"
+side="client"

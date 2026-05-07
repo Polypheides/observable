@@ -87,7 +87,7 @@ class Profiler {
         val durMs = duration.toLong() * 1000L
         Observable.CHANNEL.sendToPlayers(
             Observable.SERVER_INSTANCE!!.playerList.players,
-            S2CPacket.ProfilingStarted(startTime + durMs)
+            S2CPacket.ProfilingStarted(durMs)
         )
         Timer("Profiler", false).schedule(durMs) {
             Observable.SERVER_INSTANCE?.execute {

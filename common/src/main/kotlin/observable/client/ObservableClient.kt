@@ -46,7 +46,7 @@ object ObservableClient {
         }
 
         Observable.CHANNEL.register { t: S2CPacket.ProfilingStarted, _ ->
-            PROFILE_SCREEN.action = ProfileScreen.Action.TPSProfilerRunning(t.endMillis)
+            PROFILE_SCREEN.action = ProfileScreen.Action.TPSProfilerRunning(System.currentTimeMillis() + t.durationMs)
         }
 
         Observable.CHANNEL.register { _: S2CPacket.ProfilingCompleted, _ ->

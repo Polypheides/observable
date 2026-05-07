@@ -4,7 +4,7 @@ import kotlinx.serialization.Serializable
 import observable.server.ProfilingData
 
 class S2CPacket {
-    @Serializable data class ProfilingStarted(val endMillis: Long)
+    @Serializable data class ProfilingStarted(val durationMs: Long)
 
     @Serializable object ProfilingCompleted
 
